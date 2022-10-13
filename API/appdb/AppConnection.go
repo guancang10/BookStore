@@ -1,0 +1,5 @@
+package appdb
+
+func GetConnection() {
+
+}
