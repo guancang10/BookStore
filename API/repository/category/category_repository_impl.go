@@ -49,6 +49,7 @@ func (c CategoryRepositoryImpl) Get(ctx context.Context, tx *sql.Tx, categoryId 
 	rows, err := tx.QueryContext(ctx, script, categoryId)
 	helper.CheckError(err)
 	var result domain.Category
+	defer rows.Close()
 	if rows.Next() {
 		err := rows.Scan(&result.Id, &result.CategoryName, &result.AuditUsername, &result.AuditTime)
 		helper.CheckError(err)
@@ -60,13 +61,13 @@ func (c CategoryRepositoryImpl) Get(ctx context.Context, tx *sql.Tx, categoryId 
 }
 
 func (c CategoryRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, categoryId int) {
-	script := "DELETE Category WHERE id = ?"
+	script := "DELETE FROM Category WHERE id = ?"
 	_, err := tx.ExecContext(ctx, script, categoryId)
 	helper.CheckError(err)
 }
 
 func (c CategoryRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, categoryId int, category domain.Category) {
-	script := "UPDATE Category SET CateogryName = ? , AuditUsername = ? WHERE id = ? "
-	_, err := tx.ExecContext(ctx, script, category.CategoryName, category.AuditUsername, category.Id)
+	script := "UPDATE Category SET CategoryName = ? , AuditUsername = ? WHERE id = ? "
+	_, err := tx.ExecContext(ctx, script, category.CategoryName, category.AuditUsername, categoryId)
 	helper.CheckError(err)
 }

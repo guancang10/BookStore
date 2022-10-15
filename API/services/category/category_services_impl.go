@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"github.com/go-playground/validator"
 	"github.com/guancang10/BookStore/API/helper"
 	"github.com/guancang10/BookStore/API/helper/converter"
@@ -23,6 +24,7 @@ func NewCategoryServiceImpl(categoryRepository repository.CategoryRepository, db
 }
 
 func (c CategoryServiceImpl) Save(ctx context.Context, request request.CategoryCreateRequest) response.CategoryCreateResponse {
+	fmt.Print(request)
 	err := c.Validator.Struct(request)
 	helper.CheckError(err)
 	tx, err := c.Db.Begin()
@@ -75,9 +77,11 @@ func (c CategoryServiceImpl) Update(ctx context.Context, categoryId int, request
 	helper.CheckError(err)
 
 	defer helper.CheckErrorTx(tx)
-	category, err := c.CategoryRepository.Get(ctx, tx, categoryId)
+	_, err = c.CategoryRepository.Get(ctx, tx, categoryId)
 	helper.CheckError(err)
-	category.CategoryName = request.CategoryName
-	category.AuditUsername = request.AuditUsername
+	category := domain.Category{
+		CategoryName:  request.CategoryName,
+		AuditUsername: request.AuditUsername,
+	}
 	c.CategoryRepository.Update(ctx, tx, categoryId, category)
 }
