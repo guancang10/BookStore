@@ -2,7 +2,6 @@ package helper
 
 import (
 	"database/sql"
-	"log"
 )
 
 func CheckError(err error) {
@@ -16,7 +15,7 @@ func CheckErrorTx(tx *sql.Tx) {
 	if err != nil {
 		errRollback := tx.Rollback()
 		CheckError(errRollback)
-		log.Fatalf("Error: %s", err)
+		panic(err)
 	} else {
 		err := tx.Commit()
 		CheckError(err)

@@ -39,11 +39,10 @@ func (b BookControllerImpl) AddQuantity(writer http.ResponseWriter, req *http.Re
 	bookId, err := strconv.Atoi(params.ByName("book_id"))
 	helper.CheckError(err)
 	bookResponse := b.BookService.AddQuantity(context.Background(), bookId, bookRequest)
-
 	webResponse := response.ApiResponse{
 		Code:   http.StatusOK,
 		Status: "Success add quantity",
-		Data:   "New Quantity: " + string(bookResponse.Qty),
+		Data:   "New Quantity: " + strconv.Itoa(bookResponse.Qty),
 	}
 
 	converter.EncoderToResponse(writer, webResponse)
@@ -55,11 +54,10 @@ func (b BookControllerImpl) SubQuantity(writer http.ResponseWriter, req *http.Re
 	bookId, err := strconv.Atoi(params.ByName("book_id"))
 	helper.CheckError(err)
 	bookResponse := b.BookService.SubQuantity(context.Background(), bookId, bookRequest)
-
 	webResponse := response.ApiResponse{
 		Code:   http.StatusOK,
 		Status: "Success subtract quantity",
-		Data:   "New Quantity: " + string(bookResponse.Qty),
+		Data:   "New Quantity: " + strconv.Itoa(bookResponse.Qty),
 	}
 
 	converter.EncoderToResponse(writer, webResponse)

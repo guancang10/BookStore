@@ -18,7 +18,7 @@ func NewBookRepositoryImpl() BookRepository {
 func (b BookRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, book domain.Book) domain.Book {
 	script := "INSERT INTO Book(BookName,BookDescription,Author,CategoryId,Qty,AuditUsername) VALUES(?,?,?,?,?,?)"
 	result, err := tx.ExecContext(ctx, script, book.BookName, book.BookDescription, book.Author, book.CategoryId, book.Qty, book.AuditUsername)
-	panic(err)
+	helper.CheckError(err)
 	id, err := result.LastInsertId()
 	helper.CheckError(err)
 	book.Id = int(id)
@@ -26,14 +26,14 @@ func (b BookRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, book domain.Bo
 }
 
 func (b BookRepositoryImpl) AddQuantity(ctx context.Context, tx *sql.Tx, bookId int, qty int) {
-	script := "UPDATE Book SET Qty = Qty + ? WHERE Id = bookId"
+	script := "UPDATE Book SET Qty = Qty + ? WHERE Id = ?"
 	_, err := tx.ExecContext(ctx, script, qty, bookId)
 	helper.CheckError(err)
 
 }
 
 func (b BookRepositoryImpl) SubQuantity(ctx context.Context, tx *sql.Tx, bookId int, qty int) {
-	script := "UPDATE Book SET Qty = Qty - ? WHERE Id = bookId"
+	script := "UPDATE Book SET Qty = Qty - ? WHERE Id = ?"
 	_, err := tx.ExecContext(ctx, script, qty, bookId)
 	helper.CheckError(err)
 }
