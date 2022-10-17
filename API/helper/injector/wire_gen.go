@@ -7,13 +7,13 @@
 package injector
 
 import (
-	"github.com/go-playground/validator"
+	"github.com/go-playground/validator/v10"
 	"github.com/guancang10/BookStore/API/appdb"
-	"github.com/guancang10/BookStore/API/controllers/category"
+	"github.com/guancang10/BookStore/API/controllers"
 	"github.com/guancang10/BookStore/API/middleware"
-	"github.com/guancang10/BookStore/API/repository/category"
+	"github.com/guancang10/BookStore/API/repository"
 	"github.com/guancang10/BookStore/API/routes"
-	"github.com/guancang10/BookStore/API/services/category"
+	"github.com/guancang10/BookStore/API/services"
 	"net/http"
 )
 
@@ -24,8 +24,11 @@ func InitServer() *http.Server {
 	db := appdb.GetConnection()
 	validate := validator.New()
 	categoryServices := services.NewCategoryServiceImpl(categoryRepository, db, validate)
-	categoryController := controllers.NewCategoryController(categoryServices)
-	router := routes.SetRouter(categoryController)
+	categoryController := controllers.NewCategoryControllerImpl(categoryServices)
+	bookRepository := repository.NewBookRepositoryImpl()
+	bookServices := services.NewBookServiceImpl(db, bookRepository, validate)
+	bookController := controllers.NewBookControllerImpl(bookServices)
+	router := routes.SetRouter(categoryController, bookController)
 	middlewareMiddleware := middleware.NewMiddleware(router)
 	server := routes.SetServer(middlewareMiddleware)
 	return server

@@ -4,13 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/go-playground/validator"
+	"github.com/go-playground/validator/v10"
 	"github.com/guancang10/BookStore/API/helper"
 	"github.com/guancang10/BookStore/API/helper/converter"
+	"github.com/guancang10/BookStore/API/helper/exception"
 	"github.com/guancang10/BookStore/API/models/domain"
 	"github.com/guancang10/BookStore/API/models/web/request"
 	"github.com/guancang10/BookStore/API/models/web/response"
-	repository "github.com/guancang10/BookStore/API/repository/category"
+	"github.com/guancang10/BookStore/API/repository"
 )
 
 type CategoryServiceImpl struct {
@@ -57,7 +58,9 @@ func (c CategoryServiceImpl) Get(ctx context.Context, categoryId int) response.C
 	helper.CheckError(err)
 
 	category, err := c.CategoryRepository.Get(ctx, tx, categoryId)
-	helper.CheckError(err)
+	if err != nil {
+		panic(exception.NewNotFoundError(err))
+	}
 	return converter.ToCategoryGetResponse(category)
 }
 
@@ -66,7 +69,10 @@ func (c CategoryServiceImpl) Delete(ctx context.Context, categoryId int) {
 	helper.CheckError(err)
 	defer helper.CheckErrorTx(tx)
 	_, err = c.CategoryRepository.Get(ctx, tx, categoryId)
-	helper.CheckError(err)
+	if err != nil {
+		panic(exception.NewNotFoundError(err))
+	}
+
 	c.CategoryRepository.Delete(ctx, tx, categoryId)
 }
 
@@ -78,7 +84,10 @@ func (c CategoryServiceImpl) Update(ctx context.Context, categoryId int, request
 
 	defer helper.CheckErrorTx(tx)
 	_, err = c.CategoryRepository.Get(ctx, tx, categoryId)
-	helper.CheckError(err)
+	if err != nil {
+		panic(exception.NewNotFoundError(err))
+	}
+
 	category := domain.Category{
 		CategoryName:  request.CategoryName,
 		AuditUsername: request.AuditUsername,

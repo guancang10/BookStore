@@ -7,7 +7,7 @@ import (
 
 func CheckError(err error) {
 	if err != nil {
-		log.Fatalf("Error %s", err)
+		panic(err)
 	}
 }
 
