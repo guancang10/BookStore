@@ -8,6 +8,7 @@ package injector
 
 import (
 	"github.com/go-playground/validator/v10"
+	"github.com/google/wire"
 	"github.com/guancang10/BookStore/API/appdb"
 	"github.com/guancang10/BookStore/API/controllers"
 	"github.com/guancang10/BookStore/API/middleware"
@@ -24,12 +25,23 @@ func InitServer() *http.Server {
 	db := appdb.GetConnection()
 	validate := validator.New()
 	categoryServices := services.NewCategoryServiceImpl(categoryRepository, db, validate)
-	categoryController := controllers.NewCategoryControllerImpl(categoryServices)
+	controllersCategoryController := controllers.NewCategoryControllerImpl(categoryServices)
 	bookRepository := repository.NewBookRepositoryImpl()
 	bookServices := services.NewBookServiceImpl(db, bookRepository, validate)
-	bookController := controllers.NewBookControllerImpl(bookServices)
-	router := routes.SetRouter(categoryController, bookController)
+	controllersBookController := controllers.NewBookControllerImpl(bookServices)
+	userRepository := repository.NewUserRepositoryImpl()
+	userServices := services.NewUserServiceImpl(db, validate, userRepository)
+	controllersUserController := controllers.NewUserControllerImpl(userServices)
+	router := routes.SetRouter(controllersCategoryController, controllersBookController, controllersUserController)
 	middlewareMiddleware := middleware.NewMiddleware(router)
 	server := routes.SetServer(middlewareMiddleware)
 	return server
 }
+
+// Injector.go:
+
+var categoryController = wire.NewSet(repository.NewCategoryRepository, services.NewCategoryServiceImpl, controllers.NewCategoryControllerImpl)
+
+var bookController = wire.NewSet(repository.NewBookRepositoryImpl, services.NewBookServiceImpl, controllers.NewBookControllerImpl)
+
+var userController = wire.NewSet(repository.NewUserRepositoryImpl, services.NewUserServiceImpl, controllers.NewUserControllerImpl)

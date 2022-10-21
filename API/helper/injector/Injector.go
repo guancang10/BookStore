@@ -16,16 +16,31 @@ import (
 	"net/http"
 )
 
+var categoryController = wire.NewSet(
+	repository.NewCategoryRepository,
+	services.NewCategoryServiceImpl,
+	controllers.NewCategoryControllerImpl,
+)
+
+var bookController = wire.NewSet(
+	repository.NewBookRepositoryImpl,
+	services.NewBookServiceImpl,
+	controllers.NewBookControllerImpl,
+)
+
+var userController = wire.NewSet(
+	repository.NewUserRepositoryImpl,
+	services.NewUserServiceImpl,
+	controllers.NewUserControllerImpl,
+)
+
 func InitServer() *http.Server {
 	wire.Build(
 		appdb.GetConnection,
 		validator.New,
-		repository.NewCategoryRepository,
-		services.NewCategoryServiceImpl,
-		controllers.NewCategoryControllerImpl,
-		repository.NewBookRepositoryImpl,
-		services.NewBookServiceImpl,
-		controllers.NewBookControllerImpl,
+		categoryController,
+		bookController,
+		userController,
 		routes.SetRouter,
 		wire.Bind(new(http.Handler), new(*httprouter.Router)),
 		middleware.NewMiddleware,
