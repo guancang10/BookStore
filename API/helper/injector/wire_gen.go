@@ -27,12 +27,15 @@ func InitServer() *http.Server {
 	categoryServices := services.NewCategoryServiceImpl(categoryRepository, db, validate)
 	controllersCategoryController := controllers.NewCategoryControllerImpl(categoryServices)
 	bookRepository := repository.NewBookRepositoryImpl()
-	bookServices := services.NewBookServiceImpl(db, bookRepository, validate)
+	bookServices := services.NewBookServiceImpl(db, bookRepository, validate, categoryRepository)
 	controllersBookController := controllers.NewBookControllerImpl(bookServices)
 	userRepository := repository.NewUserRepositoryImpl()
 	userServices := services.NewUserServiceImpl(db, validate, userRepository)
 	controllersUserController := controllers.NewUserControllerImpl(userServices)
-	router := routes.SetRouter(controllersCategoryController, controllersBookController, controllersUserController)
+	transactionRepository := repository.NewTransactionRepositoryImpl()
+	transactionService := services.NewTransactionServiceImpl(db, validate, transactionRepository, bookRepository)
+	controllersTransactionController := controllers.NewTransactionControllerImpl(transactionService)
+	router := routes.SetRouter(controllersCategoryController, controllersBookController, controllersUserController, controllersTransactionController)
 	middlewareMiddleware := middleware.NewMiddleware(router)
 	server := routes.SetServer(middlewareMiddleware)
 	return server
@@ -45,3 +48,5 @@ var categoryController = wire.NewSet(repository.NewCategoryRepository, services.
 var bookController = wire.NewSet(repository.NewBookRepositoryImpl, services.NewBookServiceImpl, controllers.NewBookControllerImpl)
 
 var userController = wire.NewSet(repository.NewUserRepositoryImpl, services.NewUserServiceImpl, controllers.NewUserControllerImpl)
+
+var transactionController = wire.NewSet(repository.NewTransactionRepositoryImpl, services.NewTransactionServiceImpl, controllers.NewTransactionControllerImpl)

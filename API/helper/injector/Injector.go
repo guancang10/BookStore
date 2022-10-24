@@ -34,6 +34,12 @@ var userController = wire.NewSet(
 	controllers.NewUserControllerImpl,
 )
 
+var transactionController = wire.NewSet(
+	repository.NewTransactionRepositoryImpl,
+	services.NewTransactionServiceImpl,
+	controllers.NewTransactionControllerImpl,
+)
+
 func InitServer() *http.Server {
 	wire.Build(
 		appdb.GetConnection,
@@ -41,6 +47,7 @@ func InitServer() *http.Server {
 		categoryController,
 		bookController,
 		userController,
+		transactionController,
 		routes.SetRouter,
 		wire.Bind(new(http.Handler), new(*httprouter.Router)),
 		middleware.NewMiddleware,
