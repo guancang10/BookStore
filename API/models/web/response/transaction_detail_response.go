@@ -1,6 +1,6 @@
 package response
 
-type TransactionInsertResponse struct {
+type TransactionDetailResponse struct {
 	Id              int                 `json:"id"`
 	Username        string              `json:"username"`
 	AuditUsername   string              `json:"audit_username"`

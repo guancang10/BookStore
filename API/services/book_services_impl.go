@@ -42,7 +42,7 @@ func (b BookServicesImpl) Save(ctx context.Context, book request.BookCreateReque
 	//if res.StatusCode != 200 {
 	//	panic(exception.NewNotFoundError(errors.New("category not exists")))
 	//}
-	_, err = b.BookRepository.Get(ctx, tx, book.CategoryId)
+	_, err = b.CategoryRepository.Get(ctx, tx, book.CategoryId)
 	helper.CheckError(err)
 
 	defer helper.CheckErrorTx(tx)

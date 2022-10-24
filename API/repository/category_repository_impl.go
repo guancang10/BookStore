@@ -55,7 +55,7 @@ func (c CategoryRepositoryImpl) Get(ctx context.Context, tx *sql.Tx, categoryId 
 		helper.CheckError(err)
 		return result, nil
 	} else {
-		return result, errors.New("data not found")
+		return result, errors.New("category not found")
 	}
 
 }

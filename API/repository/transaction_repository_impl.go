@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"github.com/guancang10/BookStore/API/helper"
 	"github.com/guancang10/BookStore/API/models/domain"
 )
@@ -25,45 +26,40 @@ func (t TransactionRepositoryImpl) CreateHeaderTr(ctx context.Context, tx *sql.T
 	return htrBook
 }
 
-func (t TransactionRepositoryImpl) SaveTransaction(ctx context.Context, tx *sql.Tx, trBook domain.TrBook) {
+func (t TransactionRepositoryImpl) SaveTransaction(ctx context.Context, tx *sql.Tx, trBook domain.TrBook) domain.TrBook {
 	script := "INSERT INTO trbook(HtrBookId,BookId,Price,Qty,AuditUsername) VALUES(?,?,?,?,?)"
-	_, err := tx.ExecContext(ctx, script, trBook.HtrBookId, trBook.BookId, trBook.Price, trBook.Qty, trBook.AuditUsername)
+	result, err := tx.ExecContext(ctx, script, trBook.HtrBookId, trBook.BookId, trBook.Price, trBook.Qty, trBook.AuditUsername)
+	id, err := result.LastInsertId()
+	helper.CheckError(err)
+	trBook.Id = int(id)
+
+	helper.CheckError(err)
+	return trBook
+}
+
+func (t TransactionRepositoryImpl) UpdateTransactionStatus(ctx context.Context, tx *sql.Tx, htrBookId int, statusId int, auditUsername string) {
+	script := "UPDATE htrbook SET StatusId = ?,AuditUsername = ? WHERE Id = ?"
+	_, err := tx.ExecContext(ctx, script, statusId, auditUsername, htrBookId)
 	helper.CheckError(err)
 }
 
-//func (t TransactionRepositoryImpl) GetHeaderTr(ctx context.Context, tx *sql.Tx, htrBookId int) (domain.HtrBook, error) {
-//	script := "SELECT Id,Username,TotalPrice,TransactionDate,AuditUsername FROM htrbook WHERE Id = ?"
-//	row, err := tx.QueryContext(ctx, script, htrBookId)
-//	helper.CheckError(err)
-//	var result domain.HtrBook
-//	defer row.Close()
-//	if row.Next() {
-//		err := row.Scan(result.Id, result.Username, result.TotalPrice, result.TransactionDate, result.AuditUsername)
-//		helper.CheckError(err)
-//		return result, nil
-//	} else {
-//		return result, errors.New("transaction not exists")
-//	}
-//}
-
-//func (t TransactionRepositoryImpl) GetAllHeaderTr(ctx context.Context, tx *sql.Tx) []domain.HtrBook {
-//	script := "SELECT Id,Username,TotalPrice,TransactionDate,AuditUsername FROM htrbook"
-//	rows, err := tx.QueryContext(ctx, script)
-//	helper.CheckError(err)
-//
-//	defer rows.Close()
-//	var result []domain.HtrBook
-//	for rows.Next() {
-//		var data domain.HtrBook
-//		err := rows.Scan(&data.Id, &data.Username, &data.TotalPrice, &data.TransactionDate, &data.AuditUsername)
-//		helper.CheckError(err)
-//		result = append(result, data)
-//	}
-//	return result
-//}
+func (t TransactionRepositoryImpl) GetHeaderTr(ctx context.Context, tx *sql.Tx, htrBookId int) (domain.HtrBook, error) {
+	script := "SELECT Id,Username,TotalPrice,TransactionDate,StatusId,AuditUsername FROM htrbook WHERE Id = ?"
+	row, err := tx.QueryContext(ctx, script, htrBookId)
+	helper.CheckError(err)
+	var result domain.HtrBook
+	defer row.Close()
+	if row.Next() {
+		err := row.Scan(&result.Id, &result.Username, &result.TotalPrice, &result.TransactionDate, &result.StatusId, &result.AuditUsername)
+		helper.CheckError(err)
+		return result, nil
+	} else {
+		return result, errors.New("transaction not exists")
+	}
+}
 
 func (t TransactionRepositoryImpl) GetHeaderTrUser(ctx context.Context, tx *sql.Tx, username string) []domain.HtrBook {
-	script := "SELECT Id,TransactionDate,Username,TotalPrice FROM htrbook WHERE Username =?"
+	script := "SELECT Id,TransactionDate,Username,TotalPrice,AuditUsername FROM htrbook WHERE Username =?"
 	rows, err := tx.QueryContext(ctx, script, username)
 	helper.CheckError(err)
 
@@ -71,7 +67,7 @@ func (t TransactionRepositoryImpl) GetHeaderTrUser(ctx context.Context, tx *sql.
 	var result []domain.HtrBook
 	for rows.Next() {
 		var data domain.HtrBook
-		err := rows.Scan(&data.Id, &data.TransactionDate, &data.Username, &data.TotalPrice)
+		err := rows.Scan(&data.Id, &data.TransactionDate, &data.Username, &data.TotalPrice, &data.AuditUsername)
 		helper.CheckError(err)
 		result = append(result, data)
 	}

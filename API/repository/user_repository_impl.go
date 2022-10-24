@@ -37,12 +37,14 @@ func (u UserRepositoryImpl) GetUser(ctx context.Context, tx *sql.Tx, username st
 	rows, err := tx.QueryContext(ctx, script, username)
 	helper.CheckError(err)
 	var result domain.User
+
+	defer rows.Close()
 	if rows.Next() {
 		err := rows.Scan(&result.Username, &result.Password, &result.FirstName, &result.LastName, &result.DOB, &result.RoleId, &result.AuditUsername)
 		helper.CheckError(err)
 		return result, nil
 	} else {
-		return result, errors.New("user don't exists")
+		return result, errors.New("user not exists")
 	}
 }
 

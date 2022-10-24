@@ -33,7 +33,7 @@ func InitServer() *http.Server {
 	userServices := services.NewUserServiceImpl(db, validate, userRepository)
 	controllersUserController := controllers.NewUserControllerImpl(userServices)
 	transactionRepository := repository.NewTransactionRepositoryImpl()
-	transactionService := services.NewTransactionServiceImpl(db, validate, transactionRepository, bookRepository)
+	transactionService := services.NewTransactionServiceImpl(db, validate, transactionRepository, bookRepository, userRepository)
 	controllersTransactionController := controllers.NewTransactionControllerImpl(transactionService)
 	router := routes.SetRouter(controllersCategoryController, controllersBookController, controllersUserController, controllersTransactionController)
 	middlewareMiddleware := middleware.NewMiddleware(router)
