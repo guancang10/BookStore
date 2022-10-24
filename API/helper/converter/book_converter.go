@@ -12,6 +12,7 @@ func FromRequestToBook(param request.BookCreateRequest) domain.Book {
 		BookDescription: param.BookDescription,
 		Author:          param.Author,
 		Qty:             param.Qty,
+		Price:           param.Price,
 		CategoryId:      param.CategoryId,
 		AuditUsername:   param.AuditUsername,
 	}
@@ -23,6 +24,7 @@ func FromRequestToBookUpdate(param request.BookUpdateRequest) domain.Book {
 		BookDescription: param.BookDescription,
 		Author:          param.Author,
 		Qty:             param.Qty,
+		Price:           param.Price,
 		CategoryId:      param.CategoryId,
 		AuditUsername:   param.AuditUsername,
 	}
@@ -36,6 +38,7 @@ func FromBookToCreateResponse(param domain.Book) response.BookCreateResponse {
 		Author:          param.Author,
 		CategoryId:      param.CategoryId,
 		Qty:             param.Qty,
+		Price:           param.Price,
 	}
 }
 

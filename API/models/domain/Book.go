@@ -8,6 +8,7 @@ type Book struct {
 	BookDescription string
 	Author          string
 	CategoryId      int
+	Price           float64
 	Qty             int
 	AuditUsername   string
 	AuditTime       time.Time

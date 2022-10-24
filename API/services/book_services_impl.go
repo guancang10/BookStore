@@ -11,18 +11,17 @@ import (
 	"github.com/guancang10/BookStore/API/models/web/request"
 	"github.com/guancang10/BookStore/API/models/web/response"
 	"github.com/guancang10/BookStore/API/repository"
-	"net/http"
-	"strconv"
 )
 
 type BookServicesImpl struct {
-	Db             *sql.DB
-	BookRepository repository.BookRepository
-	Validator      *validator.Validate
+	Db                 *sql.DB
+	BookRepository     repository.BookRepository
+	CategoryRepository repository.CategoryRepository
+	Validator          *validator.Validate
 }
 
-func NewBookServiceImpl(db *sql.DB, bookRepository repository.BookRepository, validator *validator.Validate) BookServices {
-	return &BookServicesImpl{Db: db, BookRepository: bookRepository, Validator: validator}
+func NewBookServiceImpl(db *sql.DB, bookRepository repository.BookRepository, validator *validator.Validate, categoryRepository repository.CategoryRepository) BookServices {
+	return &BookServicesImpl{Db: db, BookRepository: bookRepository, Validator: validator, CategoryRepository: categoryRepository}
 }
 
 func (b BookServicesImpl) Save(ctx context.Context, book request.BookCreateRequest) response.BookCreateResponse {
@@ -32,16 +31,19 @@ func (b BookServicesImpl) Save(ctx context.Context, book request.BookCreateReque
 	helper.CheckError(err)
 
 	//Check category exists or not
-	client := &http.Client{}
-	url := "http://localhost:8080/api/categories/" + strconv.Itoa(book.CategoryId)
-	req, err := http.NewRequest("GET", url, nil)
+	//Commented because using categoryrepository
+	//client := &http.Client{}
+	//url := "http://localhost:8080/api/categories/" + strconv.Itoa(book.CategoryId)
+	//req, err := http.NewRequest("GET", url, nil)
+	//helper.CheckError(err)
+	//req.Header.Add("x-api-key", "Token")
+	//res, err := client.Do(req)
+	//helper.CheckError(err)
+	//if res.StatusCode != 200 {
+	//	panic(exception.NewNotFoundError(errors.New("category not exists")))
+	//}
+	_, err = b.BookRepository.Get(ctx, tx, book.CategoryId)
 	helper.CheckError(err)
-	req.Header.Add("x-api-key", "Token")
-	res, err := client.Do(req)
-	helper.CheckError(err)
-	if res.StatusCode != 200 {
-		panic(exception.NewNotFoundError(errors.New("category not exists")))
-	}
 
 	defer helper.CheckErrorTx(tx)
 	param := converter.FromRequestToBook(book)
