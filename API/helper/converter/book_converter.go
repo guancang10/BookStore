@@ -18,8 +18,9 @@ func FromRequestToBook(param request.BookCreateRequest) domain.Book {
 	}
 }
 
-func FromRequestToBookUpdate(param request.BookUpdateRequest) domain.Book {
+func FromRequestToBookUpdate(param request.BookUpdateRequest, bookId int) domain.Book {
 	return domain.Book{
+		Id:              bookId,
 		BookName:        param.BookName,
 		BookDescription: param.BookDescription,
 		Author:          param.Author,

@@ -34,6 +34,7 @@ func SetRouter(category controllers.CategoryController, book controllers.BookCon
 	router.GET("/api/transactions/getdetail/:htr_book_id", transaction.GetTransactionHeaderDetail)
 	router.POST("/api/transactions/create", transaction.CreateTransaction)
 	router.POST("/api/transactions/update/status", transaction.UpdateTransactionStatus)
+	router.POST("/api/transactions/update", transaction.UpdateTransaction)
 
 	router.PanicHandler = exception.ErrorHandler
 

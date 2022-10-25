@@ -70,7 +70,7 @@ func (b BookRepositoryImpl) GetAll(ctx context.Context, tx *sql.Tx) []domain.Boo
 
 func (b BookRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, bookId int, book domain.Book) {
 	script := "UPDATE Book SET BookName = ?,BookDescription = ?,Author = ?, CategoryId = ? ,Price = ?, Qty = ?, AuditUsername = ? WHERE Id = ?"
-	_, err := tx.ExecContext(ctx, script, book.BookName, book.BookDescription, book.Author, book.CategoryId, book.Price, book.Qty, book.AuditUsername)
+	_, err := tx.ExecContext(ctx, script, book.BookName, book.BookDescription, book.Author, book.CategoryId, book.Price, book.Qty, book.AuditUsername, book.Id)
 	helper.CheckError(err)
 }
 

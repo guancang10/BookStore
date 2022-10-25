@@ -118,7 +118,7 @@ func (b BookServicesImpl) Update(ctx context.Context, bookId int, book request.B
 	if err != nil {
 		panic(exception.NewNotFoundError(err))
 	} else {
-		b.BookRepository.Update(ctx, tx, bookId, converter.FromRequestToBookUpdate(book))
+		b.BookRepository.Update(ctx, tx, bookId, converter.FromRequestToBookUpdate(book, bookId))
 	}
 }
 

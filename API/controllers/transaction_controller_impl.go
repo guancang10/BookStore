@@ -47,6 +47,21 @@ func (t TransactionControllerImpl) UpdateTransactionStatus(writer http.ResponseW
 	converter.EncoderToResponse(writer, webResponse)
 }
 
+func (t TransactionControllerImpl) UpdateTransaction(writer http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	var transactionUpdate request.TransactionUpdateRequest
+	converter.DecoderFromRequest(req, &transactionUpdate)
+
+	result := t.TransactionService.UpdateTransaction(context.Background(), transactionUpdate)
+
+	webResponse := response.ApiResponse{
+		Code:   http.StatusOK,
+		Status: "Success Update Transaction",
+		Data:   result,
+	}
+
+	converter.EncoderToResponse(writer, webResponse)
+}
+
 func (t TransactionControllerImpl) GetTransactionHeaderUser(writer http.ResponseWriter, req *http.Request, params httprouter.Params) {
 	username := params.ByName("username")
 

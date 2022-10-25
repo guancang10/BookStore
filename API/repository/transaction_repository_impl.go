@@ -37,9 +37,27 @@ func (t TransactionRepositoryImpl) SaveTransaction(ctx context.Context, tx *sql.
 	return trBook
 }
 
+func (t TransactionRepositoryImpl) UpdateTransactionDetail(ctx context.Context, tx *sql.Tx, trBook domain.TrBook) {
+	script := "UPDATE TrBook SET Qty = ?,AuditUsername = ? WHERE Id = ?"
+	_, err := tx.ExecContext(ctx, script, trBook.Qty, trBook.AuditUsername, trBook.Id)
+	helper.CheckError(err)
+}
+
+func (t TransactionRepositoryImpl) UpdateTransactionHeader(ctx context.Context, tx *sql.Tx, htrBook domain.HtrBook) {
+	script := "UPDATE HtrBook SET TotalPrice = ? ,AuditUsername = ? WHERE Id = ?"
+	_, err := tx.ExecContext(ctx, script, htrBook.TotalPrice, htrBook.AuditUsername, htrBook.Id)
+	helper.CheckError(err)
+}
+
 func (t TransactionRepositoryImpl) UpdateTransactionStatus(ctx context.Context, tx *sql.Tx, htrBookId int, statusId int, auditUsername string) {
 	script := "UPDATE htrbook SET StatusId = ?,AuditUsername = ? WHERE Id = ?"
 	_, err := tx.ExecContext(ctx, script, statusId, auditUsername, htrBookId)
+	helper.CheckError(err)
+}
+
+func (t TransactionRepositoryImpl) DeleteTransactionDetail(ctx context.Context, tx *sql.Tx, trBookId int) {
+	script := "DELETE FROM TrBook WHERE Id = ?"
+	_, err := tx.ExecContext(ctx, script, trBookId)
 	helper.CheckError(err)
 }
 
@@ -59,7 +77,7 @@ func (t TransactionRepositoryImpl) GetHeaderTr(ctx context.Context, tx *sql.Tx, 
 }
 
 func (t TransactionRepositoryImpl) GetHeaderTrUser(ctx context.Context, tx *sql.Tx, username string) []domain.HtrBook {
-	script := "SELECT Id,TransactionDate,Username,TotalPrice,AuditUsername FROM htrbook WHERE Username =?"
+	script := "SELECT Id,TransactionDate,Username,StatusId,TotalPrice,AuditUsername FROM htrbook WHERE Username =?"
 	rows, err := tx.QueryContext(ctx, script, username)
 	helper.CheckError(err)
 
@@ -67,7 +85,7 @@ func (t TransactionRepositoryImpl) GetHeaderTrUser(ctx context.Context, tx *sql.
 	var result []domain.HtrBook
 	for rows.Next() {
 		var data domain.HtrBook
-		err := rows.Scan(&data.Id, &data.TransactionDate, &data.Username, &data.TotalPrice, &data.AuditUsername)
+		err := rows.Scan(&data.Id, &data.TransactionDate, &data.Username, &data.StatusId, &data.TotalPrice, &data.AuditUsername)
 		helper.CheckError(err)
 		result = append(result, data)
 	}

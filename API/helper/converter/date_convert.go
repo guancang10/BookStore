@@ -17,3 +17,8 @@ func ConvertDateFromTime(data time.Time) string {
 	result := data.Format("2006-01-02")
 	return result
 }
+
+func ConvertToDateTimeString(data time.Time) string {
+	result := data.Format("2006-01-02 15:04")
+	return result
+}

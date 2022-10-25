@@ -26,6 +26,22 @@ func FromCreateReqToTrBook(req request.TransactionDetail, htrBookId int, price f
 	}
 }
 
+func FromUpdateReqToHtrBook(req request.TransactionUpdateRequest, totalPrice float64) domain.HtrBook {
+	return domain.HtrBook{
+		Id:            req.HtrBookId,
+		AuditUsername: req.AuditUsername,
+		TotalPrice:    totalPrice,
+	}
+}
+
+func FromUpdateReqToTrBook(req request.TransactionUpdateDetail) domain.TrBook {
+	return domain.TrBook{
+		Id:            req.TrBookId,
+		Qty:           req.Qty,
+		AuditUsername: req.AuditUsername,
+	}
+}
+
 func CreateTransactionDetailResponse(htrBook domain.HtrBook, trBook []domain.TrBook) response.TransactionDetailResponse {
 	var listDetailTransaction []response.TransactionDetail
 	for _, v := range trBook {
@@ -42,7 +58,7 @@ func CreateTransactionDetailResponse(htrBook domain.HtrBook, trBook []domain.TrB
 	return response.TransactionDetailResponse{
 		Id:              htrBook.Id,
 		Username:        htrBook.Username,
-		TransactionDate: ConvertDateFromTime(htrBook.TransactionDate),
+		TransactionDate: ConvertToDateTimeString(htrBook.TransactionDate),
 		TotalPrice:      htrBook.TotalPrice,
 		StatusId:        htrBook.StatusId,
 		AuditUsername:   htrBook.AuditUsername,
@@ -57,7 +73,7 @@ func FromArrHeaderBookToResponse(req []domain.HtrBook) []response.TransactionGet
 			Id:              v.Id,
 			Username:        v.Username,
 			AuditUsername:   v.AuditUsername,
-			TransactionDate: ConvertDateFromTime(v.TransactionDate),
+			TransactionDate: ConvertToDateTimeString(v.TransactionDate),
 			StatusId:        v.StatusId,
 			TotalPrice:      v.TotalPrice,
 		}

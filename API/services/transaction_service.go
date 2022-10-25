@@ -11,4 +11,5 @@ type TransactionService interface {
 	GetTransactionHeaderUser(ctx context.Context, username string) []response.TransactionGetHeaderResponse
 	GetTransactionHeaderDetail(ctx context.Context, htrBookId int) response.TransactionDetailResponse
 	UpdateTransactionStatus(ctx context.Context, status request.TransactionUpdateStatusReq)
+	UpdateTransaction(ctx context.Context, transaction request.TransactionUpdateRequest) response.TransactionDetailResponse
 }

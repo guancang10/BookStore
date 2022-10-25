@@ -72,6 +72,50 @@ func (t TransactionServiceImpl) CreateTransaction(ctx context.Context, transacti
 	return converter.CreateTransactionDetailResponse(htrBook, listTrBook)
 }
 
+func (t TransactionServiceImpl) UpdateTransaction(ctx context.Context, transaction request.TransactionUpdateRequest) response.TransactionDetailResponse {
+	err := t.Validator.Struct(transaction)
+	helper.CheckError(err)
+
+	tx, err := t.Db.Begin()
+	helper.CheckError(err)
+
+	defer helper.CheckErrorTx(tx)
+
+	trBookReq := transaction.Detail
+
+	//Update transaction detail
+	for _, v := range trBookReq {
+		trBook := converter.FromUpdateReqToTrBook(v)
+		if trBook.Qty == 0 {
+			t.TransactionRepository.DeleteTransactionDetail(ctx, tx, trBook.Id)
+		} else {
+			t.TransactionRepository.UpdateTransactionDetail(ctx, tx, trBook)
+		}
+	}
+
+	//calculate new total price
+	trBookList := t.TransactionRepository.GetHeaderDetail(ctx, tx, transaction.HtrBookId)
+	var totalPrice float64
+	for _, v := range trBookList {
+		bookDetail, err := t.BookRepository.Get(ctx, tx, v.BookId)
+		helper.CheckError(err)
+		if v.Qty < 0 || v.Qty > bookDetail.Qty {
+			stringError := "can't set quantity below 0 or above available quantity"
+			panic(errors.New(stringError))
+		}
+		totalPrice += float64(v.Qty) * v.Price
+	}
+
+	//update header transaction
+	htrBook, err := t.TransactionRepository.GetHeaderTr(ctx, tx, transaction.HtrBookId)
+	helper.CheckError(err)
+	htrBook.TotalPrice = totalPrice
+	htrBook.AuditUsername = transaction.AuditUsername
+	t.TransactionRepository.UpdateTransactionHeader(ctx, tx, htrBook)
+
+	return converter.CreateTransactionDetailResponse(htrBook, trBookList)
+}
+
 func (t TransactionServiceImpl) UpdateTransactionStatus(ctx context.Context, status request.TransactionUpdateStatusReq) {
 	err := t.Validator.Struct(status)
 	helper.CheckError(err)
@@ -79,6 +123,13 @@ func (t TransactionServiceImpl) UpdateTransactionStatus(ctx context.Context, sta
 	tx, err := t.Db.Begin()
 	helper.CheckError(err)
 	defer helper.CheckErrorTx(tx)
+
+	htrBook, err := t.TransactionRepository.GetHeaderTr(ctx, tx, status.HtrBookId)
+	helper.CheckError(err)
+
+	if htrBook.StatusId == 3 || htrBook.StatusId == 4 {
+		panic(errors.New("can't update success or canceled transaction"))
+	}
 
 	if status.StatusId == 3 {
 		trBookList := t.TransactionRepository.GetHeaderDetail(ctx, tx, status.HtrBookId)
