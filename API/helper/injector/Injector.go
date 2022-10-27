@@ -39,6 +39,16 @@ var transactionController = wire.NewSet(
 	services.NewTransactionServiceImpl,
 	controllers.NewTransactionControllerImpl,
 )
+var transactionController = wire.NewSet(
+	repository.NewTransactionRepositoryImpl,
+	services.NewTransactionServiceImpl,
+	controllers.NewTransactionControllerImpl,
+)
+var transactionController = wire.NewSet(
+	repository.NewTransactionRepositoryImpl,
+	services.NewTransactionServiceImpl,
+	controllers.NewTransactionControllerImpl,
+)
 
 func InitServer() *http.Server {
 	wire.Build(
