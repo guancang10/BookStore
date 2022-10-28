@@ -7,7 +7,7 @@ import (
 )
 
 // Task : Nanti cari tau ini gimana optimaisenya, boros banget masa kalo ada controller lebih dari 1 di define 1 1
-func SetRouter(category controllers.CategoryController, book controllers.BookController, user controllers.UserController, transaction controllers.TransactionController) *httprouter.Router {
+func SetRouter(category controllers.CategoryController, book controllers.BookController, user controllers.UserController, transaction controllers.TransactionController, payment controllers.PaymentController) *httprouter.Router {
 	router := httprouter.New()
 	router.GET("/api/categories", category.GetAll)
 	router.GET("/api/categories/:category_id", category.Get)
@@ -35,6 +35,11 @@ func SetRouter(category controllers.CategoryController, book controllers.BookCon
 	router.POST("/api/transactions/create", transaction.CreateTransaction)
 	router.POST("/api/transactions/update/status", transaction.UpdateTransactionStatus)
 	router.POST("/api/transactions/update", transaction.UpdateTransaction)
+
+	router.GET("/api/payment/:payment_id", payment.GetPaymentDetail)
+	router.POST("/api/payment/create", payment.CreatePayment)
+	router.POST("/api/payment/update/type", payment.UpdatePaymentType)
+	router.POST("/api/payment/update/status", payment.UpdatePaymentStatus)
 
 	router.PanicHandler = exception.ErrorHandler
 
